@@ -34,10 +34,13 @@ class PiCamera(BaseCamera):
     def run(self):
         f = next(self.stream)
         frame = f.array
+
         self.rawCapture.truncate(0)
+        print("Run")
         return frame
 
     def update(self):
+        print("Update")
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
@@ -57,6 +60,106 @@ class PiCamera(BaseCamera):
         self.stream.close()
         self.rawCapture.close()
         self.camera.close()
+
+class FilteredPiCamera(BaseCamera):
+    def __init__(self, resolution=(120, 160), framerate=20):
+        from picamera.array import PiRGBArray
+        from picamera import PiCamera
+        resolution = (resolution[1], resolution[0])
+        # initialize the camera and stream
+        self.camera = PiCamera() #PiCamera gets resolution (height, width)
+        self.camera.resolution = resolution
+        self.camera.framerate = framerate
+        self.rawCapture = PiRGBArray(self.camera, size=resolution)
+        self.stream = self.camera.capture_continuous(self.rawCapture,
+            format="rgb", use_video_port=True)
+
+        # initialize the frame and the variable used to indicate
+        # if the thread should be stopped
+        self.frame = None
+        self.on = True
+
+        print('PiCamera loaded.. .warming camera')
+        time.sleep(2)
+
+
+    def run(self):
+        f = next(self.stream)
+        frame = f.array
+        
+        self.rawCapture.truncate(0)
+        print("Run")
+        return frame
+
+    def update(self):
+        #askUser = 'r'
+        #askUser = input('Press b to change the color:')
+		#change the color of the box to blue
+        # keep looping infinitely until the thread is stopped
+        for f in self.stream:
+            # grab the frame from the stream and clear the stream in
+            # preparation for the next frame
+            #self.frame = f.array
+            #print(type(f.array))
+            self.frame = self.filterImage(f.array, 'r', 'f')
+            self.rawCapture.truncate(0)
+
+            # if the thread indicator variable is set, stop the thread
+            if not self.on:
+                break
+
+    def shutdown(self):
+        # indicate that the thread should be stopped
+        self.on = False
+        print('stoping PiCamera')
+        time.sleep(.5)
+        self.stream.close()
+        self.rawCapture.close()
+        self.camera.close()
+
+    def filterImage(self,pix,color,tint):
+
+        sideLength = 20
+        yPosition = 5
+
+        #print(type(image))
+        #width, height = image.size
+        height, width, rgb = pix.shape
+        #pix = image.load()
+        
+        pix.flags.writeable = True
+
+        for j in range((width // 2) - (sideLength // 2), (width // 2) + (sideLength // 2)):
+            for i in range(yPosition, sideLength + yPosition):
+
+                red = pix[i][j][0]
+                green = pix[i][j][1]
+                blue = pix[i][j][2]
+
+                if color == "r":
+                    red = 255
+
+                    if tint == "f":
+                        green = 0
+                        blue = 0
+
+                elif color == "g":
+                    green = 255
+
+                    if tint == "f":
+                        red = 0
+                        blue = 0
+
+                elif color == "b":
+                    if tint == "f":
+                        green = 0
+                        red = 0
+		
+                pix[i][j] = (red, green, blue)
+
+        #return image
+        return pix
+
 
 class Webcam(BaseCamera):
     def __init__(self, resolution = (160, 120), framerate = 20):
