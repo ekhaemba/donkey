@@ -4,6 +4,8 @@ import numpy as np
 from PIL import Image
 import glob
 
+#Kaleb was here
+
 class BaseCamera:
 
     def run_threaded(self):
