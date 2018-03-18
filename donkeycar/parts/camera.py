@@ -80,10 +80,9 @@ class FilteredPiCamera(BaseCamera):
         # if the thread should be stopped
         self.frame = None
         self.on = True
-	
 	self.filterColor = ""
 
-        print('PiCamera loaded.. .warming camera')
+        print('FilteredPiCamera loaded.. .warming camera')
         time.sleep(2)
 
 
