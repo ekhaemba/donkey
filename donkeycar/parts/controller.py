@@ -375,6 +375,12 @@ class JoystickController(object):
                     self.throttle = self.max_throttle
                     self.on_throttle_changes()
                 print('constant_throttle:', self.constant_throttle)
+            if button == 'square' and button_state == 1:
+                '''
+                set color filter to: 'b'
+                '''
+                filterColor = 'b'
+              
 
             time.sleep(self.poll_delay)
 
