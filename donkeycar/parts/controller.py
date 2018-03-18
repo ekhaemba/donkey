@@ -215,6 +215,7 @@ class JoystickController(object):
         self.steering_scale = steering_scale
         self.throttle_scale = throttle_scale
         self.recording = False
+        self.filterColor = "r"
         self.constant_throttle = False
         self.auto_record_on_throttle = auto_record_on_throttle
         self.dev_fn = dev_fn
@@ -379,7 +380,7 @@ class JoystickController(object):
 
     def run_threaded(self, img_arr=None):
         self.img_arr = img_arr
-        return self.angle, self.throttle, self.mode, self.recording
+        return self.angle, self.throttle, self.mode, self.recording, self.filterColor
 
     def run(self, img_arr=None):
         raise Exception("We expect for this part to be run with the threaded=True argument.")
