@@ -86,7 +86,7 @@ class FilteredPiCamera(BaseCamera):
 
 
     def run(self, color=""):
-		color = self.filterColor
+	color = self.filterColor
         f = next(self.stream)
         frame = f.array
         
