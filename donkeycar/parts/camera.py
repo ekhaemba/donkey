@@ -80,12 +80,15 @@ class FilteredPiCamera(BaseCamera):
         # if the thread should be stopped
         self.frame = None
         self.on = True
+	
+	self.filterColor = ""
 
         print('PiCamera loaded.. .warming camera')
         time.sleep(2)
 
 
-    def run(self):
+    def run(self, color=""):
+	color = self.filterColor
         f = next(self.stream)
         frame = f.array
         
@@ -103,7 +106,7 @@ class FilteredPiCamera(BaseCamera):
             # preparation for the next frame
             #self.frame = f.array
             #print(type(f.array))
-            self.frame = self.filterImage(f.array, 'r', 'f')
+            self.frame = self.filterImage(f.array, 'f')
             self.rawCapture.truncate(0)
 
             # if the thread indicator variable is set, stop the thread
@@ -119,10 +122,12 @@ class FilteredPiCamera(BaseCamera):
         self.rawCapture.close()
         self.camera.close()
 
-    def filterImage(self,pix,color,tint):
+    def filterImage(self,pix,tint):
 
         sideLength = 20
         yPosition = 5
+	
+	color = self.filterColor
 
         #print(type(image))
         #width, height = image.size
