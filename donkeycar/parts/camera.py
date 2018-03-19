@@ -86,13 +86,20 @@ class FilteredPiCamera(BaseCamera):
 
 
     def run(self, color=""):
-	color = self.filterColor
+        color = self.filterColor
         f = next(self.stream)
         frame = f.array
         
         self.rawCapture.truncate(0)
         print("Run")
         return frame
+
+    def run_threaded(self,filterColor=""):
+        self.filterColor = filterColor
+        print("Camera color",self.filterColor)
+        return self.frame
+
+
 
     def update(self):
         #askUser = 'r'
@@ -125,7 +132,7 @@ class FilteredPiCamera(BaseCamera):
         sideLength = 20
         yPosition = 5
 	
-	color = self.filterColor
+        color = self.filterColor
 
         #print(type(image))
         #width, height = image.size

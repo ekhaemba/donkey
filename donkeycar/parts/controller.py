@@ -379,9 +379,8 @@ class JoystickController(object):
                 '''
                 set color filter to: 'b'
                 '''
-                filterColor = 'b'
-              
-
+                self.filterColor = 'b'
+            
             time.sleep(self.poll_delay)
 
     def run_threaded(self, img_arr=None):
