@@ -150,22 +150,21 @@ class FilteredPiCamera(BaseCamera):
 
                 if color == "r":
                     red = 255
-
                     if tint == "f":
                         green = 0
                         blue = 0
 
                 elif color == "g":
                     green = 255
-
                     if tint == "f":
                         red = 0
                         blue = 0
 
-                elif color == "b":
+                elif color == "y":
+                    red = 255
+                    green = 255
                     if tint == "f":
-                        green = 0
-                        red = 0
+                        blue = 0
 		
                 pix[i][j] = (red, green, blue)
 
