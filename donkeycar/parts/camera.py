@@ -38,11 +38,9 @@ class PiCamera(BaseCamera):
         frame = f.array
 
         self.rawCapture.truncate(0)
-        print("Run")
         return frame
 
     def update(self):
-        print("Update")
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
@@ -80,24 +78,27 @@ class FilteredPiCamera(BaseCamera):
         # if the thread should be stopped
         self.frame = None
         self.on = True
-        self.filterColor = ""
+        self.filterColor = ""		# default to no filter
         print('FilteredPiCamera loaded.. .warming camera')
         time.sleep(2)
 
 
     def run(self, color=""):
-	color = self.filterColor
+        color = self.filterColor
         f = next(self.stream)
         frame = f.array
         
         self.rawCapture.truncate(0)
-        print("Run")
         return frame
 
+    def run_threaded(self,filterColor=""):
+        self.filterColor = filterColor
+        print("Camera color",self.filterColor)
+        return self.frame
+
+
+
     def update(self):
-        #askUser = 'r'
-        #askUser = input('Press b to change the color:')
-		#change the color of the box to blue
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
@@ -125,13 +126,11 @@ class FilteredPiCamera(BaseCamera):
         sideLength = 20
         yPosition = 5
 	
-	color = self.filterColor
+        color = self.filterColor
 
-        #print(type(image))
-        #width, height = image.size
         height, width, rgb = pix.shape
-        #pix = image.load()
         
+	# need this, otherwise doesnt let us modify pix
         pix.flags.writeable = True
 
         for j in range((width // 2) - (sideLength // 2), (width // 2) + (sideLength // 2)):
@@ -143,26 +142,24 @@ class FilteredPiCamera(BaseCamera):
 
                 if color == "r":
                     red = 255
-
                     if tint == "f":
                         green = 0
                         blue = 0
 
                 elif color == "g":
                     green = 255
-
                     if tint == "f":
                         red = 0
                         blue = 0
 
-                elif color == "b":
+                elif color == "y":
+                    red = 255
+                    green = 255
                     if tint == "f":
-                        green = 0
-                        red = 0
+                        blue = 0
 		
                 pix[i][j] = (red, green, blue)
 
-        #return image
         return pix
 
 

@@ -215,7 +215,7 @@ class JoystickController(object):
         self.steering_scale = steering_scale
         self.throttle_scale = throttle_scale
         self.recording = False
-        self.filterColor = "r"
+        self.filterColor = ""
         self.constant_throttle = False
         self.auto_record_on_throttle = auto_record_on_throttle
         self.dev_fn = dev_fn
@@ -299,40 +299,40 @@ class JoystickController(object):
                     self.mode = 'user'
                 print('new mode:', self.mode)
 
-            if button == 'circle' and button_state == 1:
-                '''
-                toggle recording on/off
-                '''
-                if self.auto_record_on_throttle:
-                    print('auto record on throttle is enabled.')
-                elif self.recording:
-                    self.recording = False
-                else:
-                    self.recording = True
+            # if button == 'circle' and button_state == 1:
+            #     '''
+            #     toggle recording on/off
+            #     '''
+            #     if self.auto_record_on_throttle:
+            #         print('auto record on throttle is enabled.')
+            #     elif self.recording:
+            #         self.recording = False
+            #     else:
+            #         self.recording = True
 
-                print('recording:', self.recording)
+            #     print('recording:', self.recording)
 
-            if button == 'triangle' and button_state == 1:
-                '''
-                increase max throttle setting
-                '''
-                self.max_throttle = round(min(1.0, self.max_throttle + 0.01), 2)
-                if self.constant_throttle:
-                    self.throttle = self.max_throttle
-                    self.on_throttle_changes()
+            # if button == 'triangle' and button_state == 1:
+            #     '''
+            #     increase max throttle setting
+            #     '''
+            #     self.max_throttle = round(min(1.0, self.max_throttle + 0.01), 2)
+            #     if self.constant_throttle:
+            #         self.throttle = self.max_throttle
+            #         self.on_throttle_changes()
 
-                print('max_throttle:', self.max_throttle)
+            #     print('max_throttle:', self.max_throttle)
 
-            if button == 'cross' and button_state == 1:
-                '''
-                decrease max throttle setting
-                '''
-                self.max_throttle = round(max(0.0, self.max_throttle - 0.01), 2)
-                if self.constant_throttle:
-                    self.throttle = self.max_throttle
-                    self.on_throttle_changes()
+            # if button == 'cross' and button_state == 1:
+            #     '''
+            #     decrease max throttle setting
+            #     '''
+            #     self.max_throttle = round(max(0.0, self.max_throttle - 0.01), 2)
+            #     if self.constant_throttle:
+            #         self.throttle = self.max_throttle
+            #         self.on_throttle_changes()
 
-                print('max_throttle:', self.max_throttle)
+            #     print('max_throttle:', self.max_throttle)
 
             if button == 'base' and button_state == 1:
                 '''
@@ -375,12 +375,34 @@ class JoystickController(object):
                     self.throttle = self.max_throttle
                     self.on_throttle_changes()
                 print('constant_throttle:', self.constant_throttle)
+
+            # turn right filter
+            if button == 'circle' and button_state == 1:
+                '''
+                toggle yellow filter
+                '''
+                self.filterColor = 'y'
+
+            # go straight filter
+            if button == 'triangle' and button_state == 1:
+                '''
+                toggle green filter
+                '''
+                self.filterColor = 'g'
+            
+            # apply no filter
+            if button == 'cross' and button_state == 1:
+                '''
+                remove filter
+                '''
+                self.filterColor = ''
+
+            # turn left filter
             if button == 'square' and button_state == 1:
                 '''
-                set color filter to: 'b'
+                toggle red filter
                 '''
-                filterColor = 'b'
-              
+                self.filterColor = 'r'
 
             time.sleep(self.poll_delay)
 
