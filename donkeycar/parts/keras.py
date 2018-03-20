@@ -88,7 +88,7 @@ class KerasCategorical(KerasPilot):
 
 
 class KerasLinear(KerasPilot):
-    def __init__(self, model=None, num_outputs=None, *args, **kwargs):
+    def __init__(self, model=None, num_outputs=None, nividia=False, *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
         if model:
             self.model = model
@@ -96,6 +96,8 @@ class KerasLinear(KerasPilot):
             self.model = default_n_linear(num_outputs)
         else:
             self.model = linear_alternate()
+        if nividia:
+            self.model = nividia_linear()
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         outputs = self.model.predict(img_arr)
@@ -285,6 +287,34 @@ def linear_alternate():
 
     return model
 
+
+def nividia_linear():
+    from keras.optimizers import Adam
+    from keras.layers import Input, Dense, merge
+    from keras.models import Model
+    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
+    from keras.layers import Activation, Flatten, Dense
+    adam = Adam(lr=0.0001)
+    model = Sequential()
+
+    model.add(BatchNormalization(epsilon=0.001,mode=2, axis=1,input_shape=(120,160,3)))
+
+    model.add(Convolution2D(24,5,5,border_mode='valid', activation='relu', subsample=(2,2)))
+    model.add(Convolution2D(36,5,5,border_mode='valid', activation='relu', subsample=(2,2)))
+    model.add(Convolution2D(48,5,5,border_mode='valid', activation='relu', subsample=(2,2)))
+    model.add(Convolution2D(64,3,3,border_mode='valid', activation='relu', subsample=(1,1)))
+    model.add(Convolution2D(64,3,3,border_mode='valid', activation='relu', subsample=(1,1)))
+    model.add(Flatten())
+    model.add(Dense(1164, activation='relu'))
+    model.add(Dense(100, activation='relu'))
+    model.add(Dense(50, activation='relu'))
+    model.add(Dense(10, activation='relu'))
+    model.add(Dense(1, activation='tanh'))
+
+    model.compile(loss='mse',
+              optimizer=adam,
+              metrics=['mse','accuracy'])
+    return model
 
 
 def default_n_linear(num_outputs):
