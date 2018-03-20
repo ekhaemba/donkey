@@ -291,7 +291,7 @@ def linear_alternate():
 def nividia_linear():
     from keras.optimizers import Adam
     from keras.layers import Input, Dense, merge
-    from keras.models import Model
+    from keras.models import Model, Sequential
     from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
     from keras.layers import Activation, Flatten, Dense
     adam = Adam(lr=0.0001)
