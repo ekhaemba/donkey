@@ -38,11 +38,9 @@ class PiCamera(BaseCamera):
         frame = f.array
 
         self.rawCapture.truncate(0)
-        print("Run")
         return frame
 
     def update(self):
-        print("Update")
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
@@ -80,7 +78,7 @@ class FilteredPiCamera(BaseCamera):
         # if the thread should be stopped
         self.frame = None
         self.on = True
-        self.filterColor = ""
+        self.filterColor = ""		# default to no filter
         print('FilteredPiCamera loaded.. .warming camera')
         time.sleep(2)
 
@@ -91,7 +89,6 @@ class FilteredPiCamera(BaseCamera):
         frame = f.array
         
         self.rawCapture.truncate(0)
-        print("Run")
         return frame
 
     def run_threaded(self,filterColor=""):
@@ -102,9 +99,6 @@ class FilteredPiCamera(BaseCamera):
 
 
     def update(self):
-        #askUser = 'r'
-        #askUser = input('Press b to change the color:')
-		#change the color of the box to blue
         # keep looping infinitely until the thread is stopped
         for f in self.stream:
             # grab the frame from the stream and clear the stream in
@@ -134,11 +128,9 @@ class FilteredPiCamera(BaseCamera):
 	
         color = self.filterColor
 
-        #print(type(image))
-        #width, height = image.size
         height, width, rgb = pix.shape
-        #pix = image.load()
         
+	# need this, otherwise doesnt let us modify pix
         pix.flags.writeable = True
 
         for j in range((width // 2) - (sideLength // 2), (width // 2) + (sideLength // 2)):
@@ -168,7 +160,6 @@ class FilteredPiCamera(BaseCamera):
 		
                 pix[i][j] = (red, green, blue)
 
-        #return image
         return pix
 
 
