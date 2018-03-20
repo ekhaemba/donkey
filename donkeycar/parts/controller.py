@@ -376,37 +376,34 @@ class JoystickController(object):
                     self.on_throttle_changes()
                 print('constant_throttle:', self.constant_throttle)
 
-
+            # turn right filter
             if button == 'circle' and button_state == 1:
                 '''
-                toggle recording on/off
+                toggle yellow filter
                 '''
-                filterColor = 'y'
+                self.filterColor = 'y'
 
+            # go straight filter
             if button == 'triangle' and button_state == 1:
                 '''
-                increase max throttle setting
+                toggle green filter
                 '''
-                filterColor = 'g'
+                self.filterColor = 'g'
             
+            # apply no filter
             if button == 'cross' and button_state == 1:
                 '''
-                decrease max throttle setting
+                remove filter
                 '''
-                filterColor = ''
+                self.filterColor = ''
 
+            # turn left filter
             if button == 'square' and button_state == 1:
                 '''
-                set color filter to: 'b'
+                toggle red filter
                 '''
-<<<<<<< HEAD
-                filterColor = 'r'
-              
+                self.filterColor = 'r'
 
-=======
-                self.filterColor = 'b'
-            
->>>>>>> f3b90a93d980c44dc294d5e8f55e3f9f16003574
             time.sleep(self.poll_delay)
 
     def run_threaded(self, img_arr=None):
