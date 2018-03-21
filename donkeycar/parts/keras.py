@@ -94,10 +94,11 @@ class KerasLinear(KerasPilot):
             self.model = model
         elif num_outputs is not None:
             self.model = default_n_linear(num_outputs)
+        elif nividia:
+            self.model = nividia_linear()
         else:
             self.model = linear_alternate()
-        if nividia:
-            self.model = nividia_linear()
+
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         outputs = self.model.predict(img_arr)
