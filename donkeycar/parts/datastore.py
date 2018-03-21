@@ -441,8 +441,8 @@ class Tub(object):
             Y = [batch[k] for k in Y_keys]
             X = np.array([batch[k] for k in X_keys])
             Y = np.array([batch[k] for k in Y_keys])
-            # X = np.squeeze(X)
-            # Y = np.squeeze(Y)
+            X = np.squeeze(X)
+            Y = np.squeeze(Y)
             yield X, Y
 
 
