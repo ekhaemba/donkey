@@ -443,9 +443,6 @@ class Tub(object):
             # Y = np.array([batch[k] for k in Y_keys])
             # X = np.squeeze(X)
             # Y = np.squeeze(Y)
-            if index == 0:
-                print(X.shape, Y.shape)
-                index = 1
             yield X, Y
 
 
