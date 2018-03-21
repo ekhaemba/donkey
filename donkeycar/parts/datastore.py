@@ -434,15 +434,18 @@ class Tub(object):
 
         batch_gen = self.get_batch_gen(X_keys + Y_keys,
                                        batch_size=batch_size, record_transform=record_transform, df=df)
-
+        index = 0
         while True:
             batch = next(batch_gen)
-            # X = [batch[k] for k in X_keys]
-            # Y = [batch[k] for k in Y_keys]
-            X = np.array([batch[k] for k in X_keys])
-            Y = np.array([batch[k] for k in Y_keys])
-            X = np.squeeze(X)
-            Y = np.squeeze(Y)
+            X = [batch[k] for k in X_keys]
+            Y = [batch[k] for k in Y_keys]
+            # X = np.array([batch[k] for k in X_keys])
+            # Y = np.array([batch[k] for k in Y_keys])
+            # X = np.squeeze(X)
+            # Y = np.squeeze(Y)
+            if index == 0:
+                print(X.shape, Y.shape)
+                index = 1
             yield X, Y
 
 

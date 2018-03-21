@@ -297,7 +297,7 @@ def nividia_linear():
     adam = Adam(lr=0.0001)
     model = Sequential()
 
-    model.add(BatchNormalization(epsilon=0.001, axis=1, input_shape=(120,160,3,)))
+    model.add(BatchNormalization(epsilon=0.001,mode=2, axis=1,input_shape=(3, nrows,ncols)))
 
     model.add(Convolution2D(24,5,5,border_mode='valid', activation='relu', subsample=(2,2)))
     model.add(Convolution2D(36,5,5,border_mode='valid', activation='relu', subsample=(2,2)))
