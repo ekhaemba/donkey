@@ -314,6 +314,7 @@ def nividia_linear():
     model.compile(loss='mse',
               optimizer=adam,
               metrics=['mse','accuracy'])
+    model.summary()
     return model
 
 
