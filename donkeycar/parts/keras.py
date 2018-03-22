@@ -88,14 +88,12 @@ class KerasCategorical(KerasPilot):
 
 
 class KerasLinear(KerasPilot):
-    def __init__(self, model=None, num_outputs=None, nividia=False, *args, **kwargs):
+    def __init__(self, model=None, num_outputs=None, *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
         if model:
             self.model = model
         elif num_outputs is not None:
             self.model = default_n_linear(num_outputs)
-        elif nividia:
-            self.model = nividia_linear()
         else:
             self.model = linear_alternate()
 
@@ -108,6 +106,20 @@ class KerasLinear(KerasPilot):
         return steering[0][0], throttle[0][0]
 
 
+class NvidiaPilot(KerasPilot):
+    def __init__(self, model=None, *args, **kwargs):
+        super(NvidiaPilot, self).__init__(*args, **kwargs)
+        if model:
+            self.model = model
+        else:
+            self.model = nividia_linear()
+
+    def run(self, img_arr):
+        img_arr = img_arr.reshape((1,) + img_arr.shape)
+        output = self.model.predict(img_arr)
+        print("Angle: {}".format(output[0][0]))
+        steering = outputs[0]
+        return steering[0][0], 0.0
 
 class KerasIMU(KerasPilot):
     '''
