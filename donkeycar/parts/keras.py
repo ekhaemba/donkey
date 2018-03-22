@@ -69,12 +69,14 @@ class KerasPilot():
 
 
 class KerasCategorical(KerasPilot):
-    def __init__(self, model=None, *args, **kwargs):
+    def __init__(self, model=None, alternate=False, *args, **kwargs):
         super(KerasCategorical, self).__init__(*args, **kwargs)
         if model:
             self.model = model
-        else:
+        elif alternate:
             self.model = categorical_alternate()
+        else:
+            self.model = default_categorical()
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
@@ -88,14 +90,16 @@ class KerasCategorical(KerasPilot):
 
 
 class KerasLinear(KerasPilot):
-    def __init__(self, model=None, num_outputs=None, *args, **kwargs):
+    def __init__(self, model=None, num_outputs=None, alternate=False, *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
         if model:
             self.model = model
         elif num_outputs is not None:
             self.model = default_n_linear(num_outputs)
-        else:
+        elif alternate:
             self.model = linear_alternate()
+        else:
+            self.model = default_linear()
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
