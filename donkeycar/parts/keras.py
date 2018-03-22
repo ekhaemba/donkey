@@ -124,7 +124,7 @@ class NvidiaPilot(KerasPilot):
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         output = self.model.predict(img_arr)
-        print("Angle: {}".format(output[0][0]))
+        # print("Angle: {}".format(output[0][0]))
         steering = output[0][0]
         return steering, 0.0
 
