@@ -215,7 +215,7 @@ class JoystickController(object):
         self.steering_scale = steering_scale
         self.throttle_scale = throttle_scale
         self.recording = False
-        self.filterColor = ""
+        self.filterColor = "r"
         self.constant_throttle = False
         self.auto_record_on_throttle = auto_record_on_throttle
         self.dev_fn = dev_fn
@@ -389,7 +389,7 @@ class JoystickController(object):
                 toggle green filter
                 '''
                 self.filterColor = 'g'
-            
+
             # apply no filter
             if button == 'cross' and button_state == 1:
                 '''
