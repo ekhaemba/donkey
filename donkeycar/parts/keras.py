@@ -28,6 +28,9 @@ class KerasPilot():
     def shutdown(self):
         pass
 
+    def print_summary(self):
+        self.model.summary()
+
 
     def train(self, train_gen, val_gen,
               saved_model_path, epochs=100, steps=100, train_split=0.8,
@@ -331,7 +334,6 @@ def nividia_linear():
     model.compile(loss='mse',
               optimizer=adam,
               metrics=['mse','accuracy'])
-    model.summary()
     return model
 
 
