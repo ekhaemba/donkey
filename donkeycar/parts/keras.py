@@ -318,12 +318,13 @@ def nividia_linear():
     model = Sequential()
 
 
-    model.add(Convolution2D(24,5,5,border_mode='valid', activation='relu', input_shape=(120, 160, 3), subsample=(2,2)))
+    model.add(Input(shape=(120,160,3), name='img_in'))
     model.add(BatchNormalization(epsilon=0.001, axis=1))
-    model.add(Convolution2D(36,5,5,border_mode='valid', activation='relu', subsample=(2,2)))
-    model.add(Convolution2D(48,5,5,border_mode='valid', activation='relu', subsample=(2,2)))
-    model.add(Convolution2D(64,3,3,border_mode='valid', activation='relu', subsample=(1,1)))
-    model.add(Convolution2D(64,3,3,border_mode='valid', activation='relu', subsample=(1,1)))
+    model.add(Conv2D(24,(5,5),border_mode='valid', activation='relu', subsample=(2,2)))
+    model.add(Conv2D(36,(5,5),border_mode='valid', activation='relu', subsample=(2,2)))
+    model.add(Conv2D(48,(5,5),border_mode='valid', activation='relu', subsample=(2,2)))
+    model.add(Conv2D(64,(3,3),border_mode='valid', activation='relu', subsample=(1,1)))
+    model.add(Conv2D(64,(3,3),border_mode='valid', activation='relu', subsample=(1,1)))
     model.add(Flatten())
     model.add(Dense(1164, activation='relu'))
     model.add(Dense(100, activation='relu'))
