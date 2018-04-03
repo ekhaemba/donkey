@@ -146,6 +146,7 @@ class KerasLinear(KerasPilot):
 class NvidiaPilot(KerasPilot):
     def __init__(self, model=None, constant_throttle=(False,0.0), *args, **kwargs):
         super(NvidiaPilot, self).__init__(*args, **kwargs)
+        self.constant_throttle = constant_throttle
         if model:
             self.model = model
         else:
