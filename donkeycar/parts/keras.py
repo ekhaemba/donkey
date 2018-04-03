@@ -72,7 +72,7 @@ class KerasPilot():
 
 
 class KerasCategorical(KerasPilot):
-    def __init__(self, model=None, alternate=False, constant_throttle=(False, 0.0), *args, **kwargs):
+    def __init__(self, model=None, alternate=False, *args, **kwargs):
         super(KerasCategorical, self).__init__(*args, **kwargs)
         if model:
             self.model = model
@@ -80,8 +80,6 @@ class KerasCategorical(KerasPilot):
             self.model = categorical_alternate()
         else:
             self.model = default_categorical()
-        if constant_throttle[0]:
-            self.constant_throttle = constant_throttle
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
@@ -95,8 +93,9 @@ class KerasCategorical(KerasPilot):
 
 
 class KerasLinear(KerasPilot):
-    def __init__(self, model=None, num_outputs=None, alternate=False, *args, **kwargs):
+    def __init__(self, model=None, num_outputs=None, alternate=False, constant_throttle=(False, 0.0), *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
+        self.constant_throttle = constant_throttle
         if model:
             self.model = model
         elif num_outputs is not None:
