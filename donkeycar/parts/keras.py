@@ -102,7 +102,7 @@ class KerasLinear(KerasPilot):
         elif num_outputs is not None:
             self.model = default_n_linear(num_outputs)
         elif alternate:
-            self.model = custom_linear()
+            self.model = self.custom_linear()
         else:
             self.model = default_linear()
 
@@ -114,6 +114,35 @@ class KerasLinear(KerasPilot):
         throttle = self.constant_throttle[1] if self.constant_throttle[0] else outputs[1][0]
         return steering, throttle
 
+    def custom_linear(self):
+        from keras.optimizers import Adam
+        from keras.layers import Input, Dense
+        from keras.models import Model, Sequential
+        from keras.layers import Conv2D, BatchNormalization
+        from keras.layers import Flatten, Dense, Dropout
+
+        adam = Adam(lr=0.0001)
+        model = Sequential()
+        model.add(BatchNormalization(input_shape=(120,160,3), epsilon=0.001, axis=1))
+        model.add(Conv2D(24, (5,5), padding='valid', activation='relu', strides=(2,2)))
+        model.add(Conv2D(32, (5,5), padding='valid', activation='relu', strides=(2,2)))
+        model.add(Conv2D(64, (5,5), padding='valid', strides=(2,2), activation='relu'))
+        model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
+        model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
+
+        model.add(Flatten(name='flattened'))
+        model.add(Dense(250,activation='linear'))
+        model.add(Dropout(0.1))
+        model.add(Dense(100,activation='linear'))
+        model.add(Dropout(0.1))
+        model.add(Dense(50, activation='linear'))
+        model.add(Dropout(0.1))
+        model.add(Dense(1, activation='linear',name='angle_out'))
+
+        model.compile(loss='mse',
+                  optimizer=adam,
+                  metrics=['mse','accuracy'])
+        return model
 
 class NvidiaPilot(KerasPilot):
     def __init__(self, model=None, *args, **kwargs):
@@ -263,37 +292,6 @@ def nividia_linear():
     model.add(Dense(50, activation='relu'))
     model.add(Dense(10, activation='relu'))
     model.add(Dense(1, activation='tanh'))
-
-    model.compile(loss='mse',
-              optimizer=adam,
-              metrics=['mse','accuracy'])
-    return model
-
-
-def custom_linear():
-    from keras.optimizers import Adam
-    from keras.layers import Input, Dense
-    from keras.models import Model, Sequential
-    from keras.layers import Conv2D, BatchNormalization
-    from keras.layers import Flatten, Dense, Dropout
-
-    adam = Adam(lr=0.0001)
-    model = Sequential()
-    model.add(BatchNormalization(input_shape=(120,160,3), epsilon=0.001, axis=1))
-    model.add(Conv2D(24, (5,5), padding='valid', activation='relu', strides=(2,2)))
-    model.add(Conv2D(32, (5,5), padding='valid', activation='relu', strides=(2,2)))
-    model.add(Conv2D(64, (5,5), padding='valid', strides=(2,2), activation='relu'))
-    model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
-    model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
-
-    model.add(Flatten(name='flattened'))
-    model.add(Dense(250,activation='linear'))
-    model.add(Dropout(0.1))
-    model.add(Dense(100,activation='linear'))
-    model.add(Dropout(0.1))
-    model.add(Dense(50, activation='linear'))
-    model.add(Dropout(0.1))
-    model.add(Dense(1, activation='linear',name='angle_out'))
 
     model.compile(loss='mse',
               optimizer=adam,

@@ -250,9 +250,6 @@ class Tub(object):
         files = glob.glob(os.path.join(self.path, 'record_*.json'))
         return len(files)
 
-
-
-
     def make_record_paths_absolute(self, record_dict):
         #make paths absolute
         d = {}
@@ -263,9 +260,6 @@ class Tub(object):
             d[k] = v
 
         return d
-
-
-
 
     def check(self, fix=False):
         '''
@@ -439,10 +433,6 @@ class Tub(object):
             batch = next(batch_gen)
             X = [batch[k] for k in X_keys]
             Y = [batch[k] for k in Y_keys]
-            # X = np.array([batch[k] for k in X_keys])
-            # Y = np.array([batch[k] for k in Y_keys])
-            # X = np.squeeze(X)
-            # Y = np.squeeze(Y)
             yield X, Y
 
 
