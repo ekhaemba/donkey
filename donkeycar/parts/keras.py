@@ -144,7 +144,7 @@ class KerasLinear(KerasPilot):
         return model
 
 class NvidiaPilot(KerasPilot):
-    def __init__(self, model=None, *args, **kwargs):
+    def __init__(self, model=None, constant_throttle=(False,0.0), *args, **kwargs):
         super(NvidiaPilot, self).__init__(*args, **kwargs)
         if model:
             self.model = model
@@ -158,7 +158,7 @@ class NvidiaPilot(KerasPilot):
         steering = output[0][0]
         return steering, self.constant_throttle[1]
 
-    def nividia_linear():
+    def nividia_linear(self):
         from keras.optimizers import Adam
         from keras.layers import Input, Dense, merge
         from keras.models import Model, Sequential
