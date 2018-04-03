@@ -93,9 +93,10 @@ class KerasCategorical(KerasPilot):
 
 
 class KerasLinear(KerasPilot):
-    def __init__(self, model=None, num_outputs=None, alternate=False, constant_throttle=(False, 0.0), *args, **kwargs):
+    def __init__(self, model=None, num_outputs=None, alternate=False, constant=False, throttle=0.0, *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
-        self.constant_throttle = constant_throttle
+        self.constat = constant
+        self.throttle = throttle
         if model:
             self.model = model
         elif num_outputs is not None:
@@ -110,7 +111,7 @@ class KerasLinear(KerasPilot):
         outputs = self.model.predict(img_arr)
         #print("Angle: {}, Throttle: {}".format(outputs[0][0], outputs[1][0]))
         steering = outputs[0][0]
-        throttle = self.constant_throttle[1] if self.constant_throttle[0] else outputs[1][0]
+        throttle = self.throttle if self.constant else outputs[1][0]
         return steering, throttle
 
     def custom_linear(self):
