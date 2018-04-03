@@ -149,7 +149,7 @@ class NvidiaPilot(KerasPilot):
         if model:
             self.model = model
         else:
-            self.model = nividia_linear()
+            self.model = self.nividia_linear()
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
@@ -157,6 +157,35 @@ class NvidiaPilot(KerasPilot):
         # print("Angle: {}".format(output[0][0]))
         steering = output[0][0]
         return steering, self.constant_throttle[1]
+
+    def nividia_linear():
+        from keras.optimizers import Adam
+        from keras.layers import Input, Dense, merge
+        from keras.models import Model, Sequential
+        from keras.layers import Conv2D, MaxPooling2D, Reshape, BatchNormalization
+        from keras.layers import Activation, Flatten, Dense
+        adam = Adam(lr=0.0001)
+        model = Sequential()
+
+
+        model.add(BatchNormalization(input_shape=(120,160,3), epsilon=0.001, axis=1))
+        model.add(Conv2D(24,(5,5),padding='valid', activation='relu', strides=(2,2)))
+        model.add(Conv2D(36,(5,5),padding='valid', activation='relu', strides=(2,2)))
+        model.add(Conv2D(48,(5,5),padding='valid', activation='relu', strides=(2,2)))
+        model.add(Conv2D(64,(3,3),padding='valid', activation='relu', strides=(1,1)))
+        model.add(Conv2D(64,(3,3),padding='valid', activation='relu', strides=(1,1)))
+        model.add(Flatten())
+        model.add(Dense(1164, activation='relu'))
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(50, activation='relu'))
+        model.add(Dense(10, activation='relu'))
+        model.add(Dense(1, activation='tanh'))
+
+        model.compile(loss='mse',
+                  optimizer=adam,
+                  metrics=['mse','accuracy'])
+        return model
+
 
 class KerasIMU(KerasPilot):
     '''
@@ -269,33 +298,6 @@ def default_linear():
     return model
 
 
-def nividia_linear():
-    from keras.optimizers import Adam
-    from keras.layers import Input, Dense, merge
-    from keras.models import Model, Sequential
-    from keras.layers import Conv2D, MaxPooling2D, Reshape, BatchNormalization
-    from keras.layers import Activation, Flatten, Dense
-    adam = Adam(lr=0.0001)
-    model = Sequential()
-
-
-    model.add(BatchNormalization(input_shape=(120,160,3), epsilon=0.001, axis=1))
-    model.add(Conv2D(24,(5,5),padding='valid', activation='relu', strides=(2,2)))
-    model.add(Conv2D(36,(5,5),padding='valid', activation='relu', strides=(2,2)))
-    model.add(Conv2D(48,(5,5),padding='valid', activation='relu', strides=(2,2)))
-    model.add(Conv2D(64,(3,3),padding='valid', activation='relu', strides=(1,1)))
-    model.add(Conv2D(64,(3,3),padding='valid', activation='relu', strides=(1,1)))
-    model.add(Flatten())
-    model.add(Dense(1164, activation='relu'))
-    model.add(Dense(100, activation='relu'))
-    model.add(Dense(50, activation='relu'))
-    model.add(Dense(10, activation='relu'))
-    model.add(Dense(1, activation='tanh'))
-
-    model.compile(loss='mse',
-              optimizer=adam,
-              metrics=['mse','accuracy'])
-    return model
 
 
 def default_n_linear(num_outputs):
