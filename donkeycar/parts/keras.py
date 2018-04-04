@@ -72,7 +72,7 @@ class KerasPilot():
 
 
 class KerasCategorical(KerasPilot):
-    def __init__(self, model=None, alternate=False, constant_throttle=(False, 0.0) *args, **kwargs):
+    def __init__(self, model=None, alternate=False, *args, **kwargs):
         super(KerasCategorical, self).__init__(*args, **kwargs)
         if model:
             self.model = model
