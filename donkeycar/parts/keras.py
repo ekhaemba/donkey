@@ -110,8 +110,8 @@ class KerasLinear(KerasPilot):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         outputs = self.model.predict(img_arr)
         #print("Angle: {}, Throttle: {}".format(outputs[0][0], outputs[1][0]))
-        steering = outputs[0][0]
-        throttle = self.throttle if self.constant else outputs[1][0]
+        steering = outputs[0][0][0]
+        throttle = self.throttle if self.constant else outputs[1][0][0]
         return steering, throttle
 
 class KerasCustom(KerasPilot):
