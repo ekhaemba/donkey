@@ -95,7 +95,7 @@ class KerasCategorical(KerasPilot):
 
 
 class KerasLinear(KerasPilot):
-    def __init__(self, model=None, num_outputs=None, alternate=False, *args, **kwargs):
+    def __init__(self, model=None, num_outputs=None, constant=False, throttle=0.0, alternate=False, *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
         if model:
             self.model = model
@@ -105,30 +105,33 @@ class KerasLinear(KerasPilot):
             self.model = custom_linear()
         else:
             self.model = default_linear()
+        self.constant = constant
+        self.throttle = throttle
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         outputs = self.model.predict(img_arr)
         #print("Angle: {}, Throttle: {}".format(outputs[0][0], outputs[1][0]))
         steering = outputs[0][0]
-        throttle = if self.constant_throttle[0]: self.constant_throttle[1] else: outputs[1][0]
+        throttle = self.throttle if self.constant else outputs[1][0]
         return steering, throttle
 
 
 class NvidiaPilot(KerasPilot):
-    def __init__(self, model=None, *args, **kwargs):
+    def __init__(self, model=None, constant_throttle=0.0, *args, **kwargs):
         super(NvidiaPilot, self).__init__(*args, **kwargs)
         if model:
             self.model = model
         else:
             self.model = nividia_linear()
+        self.constant_throttle = constant_throttle
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         output = self.model.predict(img_arr)
         # print("Angle: {}".format(output[0][0]))
         steering = output[0][0]
-        return steering, self.constant_throttle[1]
+        return steering, self.constant_throttle
 
 class KerasIMU(KerasPilot):
     '''
