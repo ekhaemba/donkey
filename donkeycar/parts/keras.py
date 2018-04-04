@@ -72,7 +72,7 @@ class KerasPilot():
 
 
 class KerasCategorical(KerasPilot):
-    def __init__(self, model=None, alternate=False, *args, **kwargs):
+    def __init__(self, model=None, alternate=False, constant_throttle=(False, 0.0) *args, **kwargs):
         super(KerasCategorical, self).__init__(*args, **kwargs)
         if model:
             self.model = model
@@ -80,6 +80,8 @@ class KerasCategorical(KerasPilot):
             self.model = categorical_alternate()
         else:
             self.model = default_categorical()
+        if constant_throttle[0]:
+            self.constant_throttle = constant_throttle
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
@@ -93,16 +95,14 @@ class KerasCategorical(KerasPilot):
 
 
 class KerasLinear(KerasPilot):
-    def __init__(self, model=None, num_outputs=None, alternate=False, constant=False, throttle=0.0, *args, **kwargs):
+    def __init__(self, model=None, num_outputs=None, alternate=False, *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
-        self.constat = constant
-        self.throttle = throttle
         if model:
             self.model = model
         elif num_outputs is not None:
             self.model = default_n_linear(num_outputs)
         elif alternate:
-            self.model = self.custom_linear()
+            self.model = custom_linear()
         else:
             self.model = default_linear()
 
@@ -111,47 +111,17 @@ class KerasLinear(KerasPilot):
         outputs = self.model.predict(img_arr)
         #print("Angle: {}, Throttle: {}".format(outputs[0][0], outputs[1][0]))
         steering = outputs[0][0]
-        throttle = self.throttle if self.constant else outputs[1][0]
+        throttle = if self.constant_throttle[0]: self.constant_throttle[1] else: outputs[1][0]
         return steering, throttle
 
-    def custom_linear(self):
-        from keras.optimizers import Adam
-        from keras.layers import Input, Dense
-        from keras.models import Model, Sequential
-        from keras.layers import Conv2D, BatchNormalization
-        from keras.layers import Flatten, Dense, Dropout
-
-        adam = Adam(lr=0.0001)
-        model = Sequential()
-        model.add(BatchNormalization(input_shape=(120,160,3), epsilon=0.001, axis=1))
-        model.add(Conv2D(24, (5,5), padding='valid', activation='relu', strides=(2,2)))
-        model.add(Conv2D(32, (5,5), padding='valid', activation='relu', strides=(2,2)))
-        model.add(Conv2D(64, (5,5), padding='valid', strides=(2,2), activation='relu'))
-        model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
-        model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
-
-        model.add(Flatten(name='flattened'))
-        model.add(Dense(250,activation='linear'))
-        model.add(Dropout(0.1))
-        model.add(Dense(100,activation='linear'))
-        model.add(Dropout(0.1))
-        model.add(Dense(50, activation='linear'))
-        model.add(Dropout(0.1))
-        model.add(Dense(1, activation='linear',name='angle_out'))
-
-        model.compile(loss='mse',
-                  optimizer=adam,
-                  metrics=['mse','accuracy'])
-        return model
 
 class NvidiaPilot(KerasPilot):
-    def __init__(self, model=None, constant_throttle=(False,0.0), *args, **kwargs):
+    def __init__(self, model=None, *args, **kwargs):
         super(NvidiaPilot, self).__init__(*args, **kwargs)
-        self.constant_throttle = constant_throttle
         if model:
             self.model = model
         else:
-            self.model = self.nividia_linear()
+            self.model = nividia_linear()
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
@@ -159,35 +129,6 @@ class NvidiaPilot(KerasPilot):
         # print("Angle: {}".format(output[0][0]))
         steering = output[0][0]
         return steering, self.constant_throttle[1]
-
-    def nividia_linear(self):
-        from keras.optimizers import Adam
-        from keras.layers import Input, Dense, merge
-        from keras.models import Model, Sequential
-        from keras.layers import Conv2D, MaxPooling2D, Reshape, BatchNormalization
-        from keras.layers import Activation, Flatten, Dense
-        adam = Adam(lr=0.0001)
-        model = Sequential()
-
-
-        model.add(BatchNormalization(input_shape=(120,160,3), epsilon=0.001, axis=1))
-        model.add(Conv2D(24,(5,5),padding='valid', activation='relu', strides=(2,2)))
-        model.add(Conv2D(36,(5,5),padding='valid', activation='relu', strides=(2,2)))
-        model.add(Conv2D(48,(5,5),padding='valid', activation='relu', strides=(2,2)))
-        model.add(Conv2D(64,(3,3),padding='valid', activation='relu', strides=(1,1)))
-        model.add(Conv2D(64,(3,3),padding='valid', activation='relu', strides=(1,1)))
-        model.add(Flatten())
-        model.add(Dense(1164, activation='relu'))
-        model.add(Dense(100, activation='relu'))
-        model.add(Dense(50, activation='relu'))
-        model.add(Dense(10, activation='relu'))
-        model.add(Dense(1, activation='tanh'))
-
-        model.compile(loss='mse',
-                  optimizer=adam,
-                  metrics=['mse','accuracy'])
-        return model
-
 
 class KerasIMU(KerasPilot):
     '''
@@ -300,6 +241,63 @@ def default_linear():
     return model
 
 
+def nividia_linear():
+    from keras.optimizers import Adam
+    from keras.layers import Input, Dense, merge
+    from keras.models import Model, Sequential
+    from keras.layers import Conv2D, MaxPooling2D, Reshape, BatchNormalization
+    from keras.layers import Activation, Flatten, Dense
+    adam = Adam(lr=0.0001)
+    model = Sequential()
+
+
+    model.add(BatchNormalization(input_shape=(120,160,3), epsilon=0.001, axis=1))
+    model.add(Conv2D(24,(5,5),padding='valid', activation='relu', strides=(2,2)))
+    model.add(Conv2D(36,(5,5),padding='valid', activation='relu', strides=(2,2)))
+    model.add(Conv2D(48,(5,5),padding='valid', activation='relu', strides=(2,2)))
+    model.add(Conv2D(64,(3,3),padding='valid', activation='relu', strides=(1,1)))
+    model.add(Conv2D(64,(3,3),padding='valid', activation='relu', strides=(1,1)))
+    model.add(Flatten())
+    model.add(Dense(1164, activation='relu'))
+    model.add(Dense(100, activation='relu'))
+    model.add(Dense(50, activation='relu'))
+    model.add(Dense(10, activation='relu'))
+    model.add(Dense(1, activation='tanh'))
+
+    model.compile(loss='mse',
+              optimizer=adam,
+              metrics=['mse','accuracy'])
+    return model
+
+
+def custom_linear():
+    from keras.optimizers import Adam
+    from keras.layers import Input, Dense
+    from keras.models import Model, Sequential
+    from keras.layers import Conv2D, BatchNormalization
+    from keras.layers import Flatten, Dense, Dropout
+
+    adam = Adam(lr=0.0001)
+    model = Sequential()
+    model.add(BatchNormalization(input_shape=(120,160,3), epsilon=0.001, axis=1))
+    model.add(Conv2D(24, (5,5), padding='valid', activation='relu', strides=(2,2)))
+    model.add(Conv2D(32, (5,5), padding='valid', activation='relu', strides=(2,2)))
+    model.add(Conv2D(64, (5,5), padding='valid', strides=(2,2), activation='relu'))
+    model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
+    model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
+
+    model.add(Flatten(name='flattened'))
+    model.add(Dense(250,activation='relu'))
+    model.add(Dense(100,activation='relu'))
+    model.add(Dropout(0.1))
+    model.add(Dense(50, activation='relu'))
+    model.add(Dropout(0.1))
+    model.add(Dense(1, activation='tanh',name='angle_out'))
+
+    model.compile(loss='mse',
+              optimizer=adam,
+              metrics=['mse','accuracy'])
+    return model
 
 
 def default_n_linear(num_outputs):
