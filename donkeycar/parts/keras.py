@@ -304,8 +304,7 @@ def custom_linear():
     model.add(Conv2D(64, (3,3), strides=(1,1), padding='valid', activation='relu'))
 
     model.add(Flatten(name='flattened'))
-    model.add(Dense(250,activation='relu'))
-    model.add(Dense(100,activation='relu'))
+    model.add(Dense(150,activation='relu'))
     model.add(Dropout(0.1))
     model.add(Dense(50, activation='relu'))
     model.add(Dropout(0.1))
