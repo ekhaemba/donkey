@@ -95,7 +95,7 @@ class KerasCategorical(KerasPilot):
 
 
 class KerasLinear(KerasPilot):
-    def __init__(self, model=None, num_outputs=None, constant=False, throttle=0.0, *args, **kwargs):
+    def __init__(self, model=None, num_outputs=None, max_throttle=None, *args, **kwargs):
         super(KerasLinear, self).__init__(*args, **kwargs)
         if model:
             self.model = model
@@ -103,15 +103,15 @@ class KerasLinear(KerasPilot):
             self.model = default_n_linear(num_outputs)
         else:
             self.model = default_linear()
-        self.throttle = throttle
-        self.constant = constant
+        self.max_throttle = max_throttle
 
     def run(self, img_arr):
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         outputs = self.model.predict(img_arr)
         #print("Angle: {}, Throttle: {}".format(outputs[0][0], outputs[1][0]))
         steering = outputs[0][0][0]
-        throttle = self.throttle if self.constant else outputs[1][0][0]
+        # Cap the throttle if max_throttle is initialized
+        throttle = outputs[1][0][0] if self.max_throttle is not None and self.max_throttle > outputs[1][0][0] else self.max_throttle
         return steering, throttle
 
 class KerasCustom(KerasPilot):
