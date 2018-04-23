@@ -185,7 +185,81 @@ class KerasIMU(KerasPilot):
         throttle = outputs[1]
         return steering[0][0], throttle[0][0]
 
+class KerasBehavioral(KerasPilot):
+    '''
+    A Keras part that take an image and Behavior vector as input,
+    outputs steering and throttle
+    '''
+    def __init__(self, model=None, num_outputs=2, num_behavior_inputs=2, input_shape=(120, 160, 3), *args, **kwargs):
+        super(KerasBehavioral, self).__init__(*args, **kwargs)
+        self.model = default_bhv(num_outputs = num_outputs, num_bvh_inputs = num_behavior_inputs, input_shape=input_shape)
+        self.compile()
 
+    def compile(self):
+        self.model.compile(optimizer=self.optimizer,
+                  loss='mse')
+        
+    def run(self, img_arr, state_array):        
+        img_arr = img_arr.reshape((1,) + img_arr.shape)
+        bhv_arr = np.array(state_array).reshape(1,len(state_array))
+        angle_binned, throttle = self.model.predict([img_arr, bhv_arr])
+        #in order to support older models with linear throttle,
+        #we will test for shape of throttle to see if it's the newer
+        #binned version.
+        N = len(throttle[0])
+        
+        if N > 0:
+            throttle = dk.utils.linear_unbin(throttle, N=N, offset=0.0, R=0.5)
+        else:
+            throttle = throttle[0][0]
+        angle_unbinned = dk.utils.linear_unbin(angle_binned)
+        return angle_unbinned, throttle
+
+def default_bhv(num_outputs, num_bvh_inputs, input_shape):
+    '''
+    Notes: this model depends on concatenate which failed on keras < 2.0.8
+    '''
+
+    from keras.layers import Input, Dense
+    from keras.models import Model
+    from keras.layers import Convolution2D, MaxPooling2D, Reshape, BatchNormalization
+    from keras.layers import Activation, Dropout, Flatten, Cropping2D, Lambda
+    from keras.layers.merge import concatenate
+    
+    img_in = Input(shape=input_shape, name='img_in')
+    bvh_in = Input(shape=(num_bvh_inputs,), name="behavior_in")
+    
+    x = img_in
+    #x = Cropping2D(cropping=((60,0), (0,0)))(x) #trim 60 pixels off top
+    #x = Lambda(lambda x: x/127.5 - 1.)(x) # normalize and re-center
+    x = Convolution2D(24, (5,5), strides=(2,2), activation='relu')(x)
+    x = Convolution2D(32, (5,5), strides=(2,2), activation='relu')(x)
+    x = Convolution2D(64, (3,3), strides=(2,2), activation='relu')(x)
+    x = Convolution2D(64, (3,3), strides=(1,1), activation='relu')(x)
+    x = Convolution2D(64, (3,3), strides=(1,1), activation='relu')(x)
+    x = Flatten(name='flattened')(x)
+    x = Dense(100, activation='relu')(x)
+    x = Dropout(.1)(x)
+    
+    y = bvh_in
+    y = Dense(num_bvh_inputs * 2, activation='relu')(y)
+    y = Dense(num_bvh_inputs * 2, activation='relu')(y)
+    y = Dense(num_bvh_inputs * 2, activation='relu')(y)
+    
+    z = concatenate([x, y])
+    z = Dense(100, activation='relu')(z)
+    z = Dropout(.1)(z)
+    z = Dense(50, activation='relu')(z)
+    z = Dropout(.1)(z)
+
+    angle_out = Dense(15, activation='softmax', name='angle_out')(z)        # Connect every input with every output and output 15 hidden units. Use Softmax to give percentage. 15 categories and find best one based off percentage 0.0-1.0
+    
+    #continous output of throttle
+    throttle_out = Dense(20, activation='softmax', name='throttle_out')(z)      # Reduce to 1 number, Positive number only
+        
+    model = Model(inputs=[img_in, bvh_in], outputs=[angle_out, throttle_out])
+    
+    return model
 
 def default_categorical():
     from keras.layers import Input, Dense, merge
