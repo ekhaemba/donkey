@@ -301,7 +301,7 @@ class Tub(object):
         for key, val in data.items():
             typ = self.get_input_type(key)
 
-            if typ in ['str', 'float', 'int', 'boolean']:
+            if typ in ['str', 'float', 'int', 'boolean', 'vector']:
                 json_data[key] = val
 
             elif typ is 'image':
@@ -415,8 +415,6 @@ class Tub(object):
             batch_arrays = {}
             for i, k in enumerate(keys):
                 arr = np.array([r[k] for r in record_list])
-                if k == 0:
-                    print(arr.shape)
                 # if len(arr.shape) == 1:
                 #    arr = arr.reshape(arr.shape + (1,))
                 batch_arrays[k] = arr
