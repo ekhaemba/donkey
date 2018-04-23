@@ -3,11 +3,11 @@ import serial, time, sys, threading, datetime, shutil
 
 class GPS:
 
-    def __init__(self, requestRate=20):
+    def __init__(self):
 
         self.ser = serial.Serial()
         self.ser.baudrate = 4800
-        self.coord = None
+        self.coord = 0
 
         try:
 
@@ -28,7 +28,6 @@ class GPS:
     def run_threaded(self):
         return self.coord
 
-
     # def run(self):
     #     f = next(self.stream)
     #     frame = f.array
@@ -40,8 +39,10 @@ class GPS:
         # keep looping infinitely until the thread is stopped
         while True:
             try:
-                data = ser.readline()
+                
+                data = self.ser.readline()
                 data = data.decode("utf-8")#converts data from bytes to string for parsing
+                
                 if (data[0:6] == '$GPGGA'):
                     gpgga = nmea.GPGGA()
                     gpgga.parse(data)
@@ -64,9 +65,12 @@ class GPS:
     #               latLong[0] = (pos_y)
     #               latLong[1] = (pos_x)
                     self.coord = (str(pos_y) + ',' + str(pos_x))
-    #               print(latLongString)
+                    #print(latLongString)
+#                return self.coord
+
             except:
                 pass
+ #               return self.coord
                 
             #GPS reading code goes
 
