@@ -190,7 +190,7 @@ class KerasBehavioral(KerasPilot):
     A Keras part that take an image and Behavior vector as input,
     outputs steering and throttle
     '''
-    def __init__(self, model=None, num_outputs=2, num_behavior_inputs=2, input_shape=(120, 160, 3), *args, **kwargs):
+    def __init__(self, model=None, num_outputs=2, num_behavior_inputs=2, input_shape=(120,160,3), *args, **kwargs):
         super(KerasBehavioral, self).__init__(*args, **kwargs)
         self.model = default_bhv(num_outputs = num_outputs, num_bvh_inputs = num_behavior_inputs, input_shape=input_shape)
         self.compile()
@@ -202,18 +202,19 @@ class KerasBehavioral(KerasPilot):
     def run(self, img_arr, state_array):        
         img_arr = img_arr.reshape((1,) + img_arr.shape)
         bhv_arr = np.array(state_array).reshape(1,len(state_array))
-        angle_binned, throttle = self.model.predict([img_arr, bhv_arr])
+        #angle_binned, throttle = self.model.predict([img_arr, bhv_arr])
+        angle, throttle = self.model.predict([img_arr, bhv_arr])
         #in order to support older models with linear throttle,
         #we will test for shape of throttle to see if it's the newer
         #binned version.
-        N = len(throttle[0])
+        # N = len(throttle[0])
         
-        if N > 0:
-            throttle = dk.utils.linear_unbin(throttle, N=N, offset=0.0, R=0.5)
-        else:
-            throttle = throttle[0][0]
-        angle_unbinned = dk.utils.linear_unbin(angle_binned)
-        return angle_unbinned, throttle
+        # if N > 0:
+        #     throttle = dk.utils.linear_unbin(throttle, N=N, offset=0.0, R=0.5)
+        # else:
+        #     throttle = throttle[0][0]
+        # angle_unbinned = dk.utils.linear_unbin(angle_binned)
+        return angle[0], throttle[0]
 
 def default_bhv(num_outputs, num_bvh_inputs, input_shape):
     '''
