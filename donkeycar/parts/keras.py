@@ -196,7 +196,7 @@ class KerasBehavioral(KerasPilot):
         self.compile()
 
     def compile(self):
-        self.model.compile(optimizer=self.optimizer,
+        self.model.compile(optimizer='adam',
                   loss='mse')
         
     def run(self, img_arr, state_array):        
@@ -252,10 +252,11 @@ def default_bhv(num_outputs, num_bvh_inputs, input_shape):
     z = Dense(50, activation='relu')(z)
     z = Dropout(.1)(z)
 
-    angle_out = Dense(15, activation='softmax', name='angle_out')(z)        # Connect every input with every output and output 15 hidden units. Use Softmax to give percentage. 15 categories and find best one based off percentage 0.0-1.0
+    #Continuous output of throttle
+    angle_out = Dense(1, activation='linear', name='angle_out')(z)
     
     #continous output of throttle
-    throttle_out = Dense(20, activation='softmax', name='throttle_out')(z)      # Reduce to 1 number, Positive number only
+    throttle_out = Dense(1, activation='linear', name='throttle_out')(z)      # Reduce to 1 number, Positive number only
         
     model = Model(inputs=[img_in, bvh_in], outputs=[angle_out, throttle_out])
     
