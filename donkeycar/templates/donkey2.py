@@ -23,7 +23,8 @@ from donkeycar.parts.keras import KerasCategorical
 from donkeycar.parts.actuator import PCA9685, PWMSteering, PWMThrottle
 from donkeycar.parts.datastore import TubHandler, TubGroup
 from donkeycar.parts.controller import LocalWebController, JoystickController
-
+from donkeycar.parts.controller import PS3JoystickController
+from donkeycar.parts.behavior import BehaviorPart
 
 
 def drive(cfg, model_path=None, use_joystick=False):
@@ -45,9 +46,7 @@ def drive(cfg, model_path=None, use_joystick=False):
     if use_joystick or cfg.USE_JOYSTICK_AS_DEFAULT:
         #modify max_throttle closer to 1.0 to have more power
         #modify steering_scale lower than 1.0 to have less responsive steering
-        ctr = JoystickController(max_throttle=cfg.JOYSTICK_MAX_THROTTLE,
-                                 steering_scale=cfg.JOYSTICK_STEERING_SCALE,
-                                 auto_record_on_throttle=cfg.AUTO_RECORD_ON_THROTTLE)
+        ctr = PS3JoystickController(throttle_scale=cfg.JOYSTICK_MAX_THROTTLE,                               steering_scale=cfg.JOYSTICK_STEERING_SCALE,auto_record_on_throttle=cfg.AUTO_RECORD_ON_THROTTLE)
     else:        
         #This web controller will create a web server that is capable
         #of managing steering, throttle, and modes, and more.
@@ -113,7 +112,18 @@ def drive(cfg, model_path=None, use_joystick=False):
     
     V.add(steering, inputs=['angle'])
     V.add(throttle, inputs=['throttle'])
-    
+    bh = BehaviorPart(cfg.BEHAVIOR_LIST)
+    V.add(bh, outputs=['behavior/state', 'behavior/label', "behavior/vector"])
+    def behav_left():
+        bh.set_state(0)
+    def behav_straight():
+        bh.set_state(1)
+    def behav_right():
+        bh.set_state(2)
+        
+    ctr.set_button_down_down_trigger('square', behav_left)
+    ctr.set_button_down_down_trigger('triangle', behav_straight)
+    ctr.set_button_down_trigger('circle', behav_right)
     #add tub to save data
     inputs=['cam/image_array', 'user/angle', 'user/throttle', 'user/mode']
     types=['image_array', 'float', 'float',  'str']
