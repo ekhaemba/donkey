@@ -9,6 +9,9 @@ class GPS:
         self.ser.baudrate = 4800
         self.coord = 0
 
+        self.lat = 0
+        self.long = 0
+
         try:
 
             self.ser.port = '/dev/ttyUSB0'
@@ -26,7 +29,7 @@ class GPS:
         time.sleep(2)
 
     def run_threaded(self):
-        return self.coord
+        return self.lat, self.long
 
     # def run(self):
     #     f = next(self.stream)
@@ -56,15 +59,16 @@ class GPS:
                     long = (float(longs[0]+longs[1]+longs[2])+long1)            
 
                     #calc position
-                    pos_y = lat
-                    pos_x = -long       
+                    self.lat = lat
+                    self.long = -long       
         
     #               print(pos_y)
     #               print(pos_x)
     #               print(pos_y + ',' + pos_x)
     #               latLong[0] = (pos_y)
     #               latLong[1] = (pos_x)
-                    self.coord = (str(pos_y) + ',' + str(pos_x))
+                    self.coord = (str(self.lat) + ',' + str(self.long))
+                    #print(self.coord)
                     #print(latLongString)
 #                return self.coord
 
