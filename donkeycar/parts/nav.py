@@ -52,7 +52,7 @@ class Navigator:
 
 		now = dt.now()
 		starting_address = 39.679640,-75.751837#Brown Lab
-		#starting_address = getLatLong()
+		#starting_address = self.coord
 		ending_address = 39.681074,-75.752658#Sharp Lab
 		#waypoint_intersections = askUserForWaypoints(waypoints, defaultWaypoints)
 		#directions_result = gmap.directions(starting_address,
@@ -98,9 +98,9 @@ class Navigator:
 			directionstxt.write(str(elem) +'\n')
 		directionstxt.close()
 
-		with open("short_figure_8.txt") as directionslist:
+		with open("/home/pi/donkey/donkeycar/parts/short_figure_8.txt") as directionslist:
 			for line in directionslist:
-				print(line)
+				#print(line)
 				if (line[1].isdigit()):
 					self.list1TXT.append(float(line[:-2]))
 				elif "left" in line:
@@ -178,7 +178,7 @@ class Navigator:
 	def directionsOntheGo(self):
 		now = dt.now()
 		starting_address = 39.679640,-75.751837#Brown Lab
-		#starting_address = getLatLong()
+		#starting_address = self.coord
 		ending_address = 39.681074,-75.752658#Sharp Lab
 		#ending_address = read from memory
 		directions_result = gmap.directions(starting_address,
