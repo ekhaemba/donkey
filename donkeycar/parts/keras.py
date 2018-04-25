@@ -112,6 +112,7 @@ class KerasLinear(KerasPilot):
         steering = outputs[0][0][0]
         # Cap the throttle if max_throttle is initialized
         throttle = outputs[1][0][0] if self.max_throttle is not None and self.max_throttle > outputs[1][0][0] else self.max_throttle
+        print("Angle: {}, Throttle: {}".format(steering, throttle))
         return steering, throttle
 
 class KerasCustom(KerasPilot):
