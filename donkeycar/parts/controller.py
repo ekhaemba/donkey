@@ -313,9 +313,9 @@ class JoystickController(object):
             #     print('recording:', self.recording)
 
             if button == 'triangle' and button_state == 1:
-                 '''
-                 increase max throttle setting
-                 '''
+                '''
+                increase max throttle setting
+                '''
                 self.max_throttle = round(min(1.0, self.max_throttle + 0.01), 2)
                 if self.constant_throttle:
                     self.throttle = self.max_throttle
@@ -324,9 +324,9 @@ class JoystickController(object):
             #     print('max_throttle:', self.max_throttle)
 
             if button == 'cross' and button_state == 1:
-                 '''
-                 decrease max throttle setting
-                 '''
+                '''
+                decrease max throttle setting
+                '''
                 self.max_throttle = round(max(0.0, self.max_throttle - 0.01), 2)
                 if self.constant_throttle:
                     self.throttle = self.max_throttle
