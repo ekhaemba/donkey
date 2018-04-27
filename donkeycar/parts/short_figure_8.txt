@@ -1,4 +1,3 @@
-#start at the intersection between evans & dupont, on the left side facing towards dupont
 39.680638
 -75.752054
 left

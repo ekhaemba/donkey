@@ -22,6 +22,7 @@ from pynmea import nmea
 list1 = []
 waypoints = ''
 defaultWaypoints = 0
+GPS_TOLERANCE = 180
 
 def askUserForWaypoints(waypoints_list, moreThanOneWaypoint):
 	###right now, the function just takes the user to the waypoint
@@ -72,8 +73,8 @@ class Navigator:
 		#turnDirections!!!
 		#	"g" = straight,	  "r" = left,	"y" = right
 		self.turnDirection = "g"
-		
-		
+		self.theoreticalLatLong = []
+
 		self.ser = serial.Serial()
 		self.ser.baudrate = 4800
 		self.lat = 0
@@ -102,24 +103,30 @@ class Navigator:
 			for line in directionslist:
 				#print(line)
 				if (line[1].isdigit()):
-					self.list1TXT.append(float(line[:-2]))
+					self.list1TXT.append(((abs(float(line[:-1]))*1000000)%1000))
 				elif "left" in line:
 					self.list1TXT.append("left")
 				elif "right" in line:
 					self.list1TXT.append("right")
 				elif "straight" in line:
 					self.list1TXT.append("straight")
-
+		#print(self.list1TXT)
+		#for (i=0,i<len(self.theoreticalLatLong),i+=2):
+		#	self.theoreticalLatLong[i] = math.sqrt(pow(self.theoreticalLatLong[i],2) + pow(self.theoreticalLatLong[i+1],2))			
 		
 	def run_threaded(self):
+#		print(self.turnDirection)
+#		print(self.lat, self.long)
 		return self.turnDirection
 
 	def update(self):
+		withinThreshold = 0
 		# keep looping infinitely until the thread is stopped
 		while True:
 			try:
 
-	
+				self.updateLatLong()
+#				print(self.distanceToleranceTXT())
 #				if(self.distanceTolerance() <= .000045):
 #					if (list1 == 'straight'):
 #						self.turnDirection = "g"
@@ -128,51 +135,75 @@ class Navigator:
 #					elif (list1 == 'left'):
 #						self.turnDirection = "r"
 #					self.updateDirections()
-				if(self.distanceToleranceTXT() <= .000045):
-					if (list1TXT == 'straight'):
+				
+#				print(self.distanceToleranceTXT())
+				#yprint(self.myMethod())
+#				print(type(self.lat))
+				if((self.distanceToleranceTXT() <= GPS_TOLERANCE) and not withinThreshold):
+					withinThreshold = 1
+					print("current state: ", withinThreshold)
+					if (self.list1TXT[2] == "straight"):
 						self.turnDirection = "g"
-					elif (list1TXT == 'right'):
+					elif (self.list1TXT[2] == "right"):
 						self.turnDirection = "y"
-					elif (list1TXT == 'left'):
+					elif (self.list1TXT[2] == "left"):
 						self.turnDirection = "r"
-					self.updateDirections()
+					#while(self.distanceToleranceTXT() <= 1.5 * GPS_TOLERANCE):
+					#	print("stuck")
+					#	pass
+				if((self.distanceToleranceTXT() >= (1.5 * GPS_TOLERANCE)) and withinThreshold):
+					withinThreshold = 0
+					print("current state: ",withinThreshold)
+#					self.updateDirections()
+					self.updateDirectionsTXT()
 			except:
+#				self.distanceToleranceTXT()
 				pass
 	
 	def updateLatLong(self):
 		data = self.ser.readline()
-		data = data.decode("utf-8")#converts data from bytes to string for parsing
+		try:
+			data = data.decode("utf-8")#converts data from bytes to string for parsing
+			if (data[0:6] == '$GPGGA'):
+				gpgga = nmea.GPGGA()
+				gpgga.parse(data)
+				lats = gpgga.latitude
+				longs = gpgga.longitude
                 
-		if (data[0:6] == '$GPGGA'):
-			gpgga = nmea.GPGGA()
-			gpgga.parse(data)
-			lats = gpgga.latitude
-			longs = gpgga.longitude
-                
-                    #convert degrees, decimal minutes to decimal degrees 
-			lat1 = (float(lats[2]+lats[3]+lats[4]+lats[5]+lats[6]+lats[7]+lats[8]))/60
-			lat = (float(lats[0]+lats[1])+lat1)
-			long1 = (float(longs[3]+longs[4]+longs[5]+longs[6]+longs[7]+longs[8]+longs[9]))/60
-			long = (float(longs[0]+longs[1]+longs[2])+long1)            
+                    	#convert degrees, decimal minutes to decimal degrees 
+				lat1 = (float(lats[2]+lats[3]+lats[4]+lats[5]+lats[6]+lats[7]+lats[8]))/60
+				lat = (float(lats[0]+lats[1])+lat1)
+				long1 = (float(longs[3]+longs[4]+longs[5]+longs[6]+longs[7]+longs[8]+longs[9]))/60
+				long = (float(longs[0]+longs[1]+longs[2])+long1)            
 
-                    #calc position
-			self.lat = lat
-			self.long = -long    
-			self.coord = (str(self.lat) + ',' + str(self.long))
-
+                    	#calc position
+				self.lat = lat
+				self.long = -long    
+				self.coord = (str(self.lat) + ',' + str(self.long))
+				
+		except:
+			pass
 
 	def distanceTolerance(self):
 		#returns if the current lat long is within 15 ft tolerance of actual intersection
-		theoretical = math.sqrt(self.list1[0] ** 2 + self.list1[1] ** 2)
-		#actual = math.sqrt(self.lat**2 + self.long**2)
-		tolerance = theroetical #- actual
-		return tolerance
+                lat = ((self.lat*1000000)%1000)
+                long = ((abs(self.long)*1000000)%1000)
+                theoreticalLat = self.list1[0]
+                theoreticalLong = self.list1[1]
+                tolerance = math.sqrt(pow((theoreticalLat-lat), 2) + pow((theoreticalLong-long), 2))
+                #actual = math.sqrt(pow(lat, 2) + pow(long, 2))
+                #tolerance = theoretical - actual
+                return tolerance
 
 	def distanceToleranceTXT(self):
 		#returns if the current lat long is within 15 ft tolerance of actual intersection
-		theoretical = math.sqrt(self.list1TXT[0] ** 2 + self.list1TXT[1] ** 2)
-		actual = math.sqrt(self.lat**2 + self.long**2)
-		tolerance = abs(theroetical - actual)
+		lat = ((self.lat*1000000)%1000)
+		long = ((abs(self.long)*1000000)%1000)
+		theoreticalLat = self.list1TXT[0]
+		theoreticalLong = self.list1TXT[1]
+		tolerance = math.sqrt(pow((theoreticalLat-lat), 2) + pow((theoreticalLong-long), 2))
+		#actual = math.sqrt(pow(lat, 2) + pow(long, 2))
+		#tolerance = theoretical - actual
 		return tolerance
 
 	def directionsOntheGo(self):
@@ -214,7 +245,15 @@ class Navigator:
 		self.list1.pop(0)
 		self.list1.pop(0)
 		self.list1.pop(0)
-		return self.list1
+#		return self.list1
+
+	def updateDirectionsTXT(self):
+                #When an intresection is reached, remove the lat long and turn direction from the list
+                self.list1TXT.pop(0)
+                self.list1TXT.pop(0)
+                self.list1TXT.pop(0)
+#               return self.list1TXT
+
 
 	def flipLatLong(self, list):
 		#Flips the list only if the longitude is returned before the latitude
@@ -232,4 +271,3 @@ class Navigator:
 		#indicate that the thread should be stopped
 		print('Stopping Maps Navigation')
 		time.sleep(.5)
-

@@ -119,7 +119,7 @@ class KerasLinear(KerasPilot):
                 throttle = outputs[1][0][0]
         else:
             throttle = outputs[1][0][0]
-        print("Angle: {}, Throttle: {}".format(steering, throttle))
+#        print("Angle: {}, Throttle: {}".format(steering, throttle))
         return steering, throttle
 
 class KerasCustom(KerasPilot):
