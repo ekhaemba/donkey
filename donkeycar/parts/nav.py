@@ -106,10 +106,10 @@ class Navigator:
 			directionstxt.write(str(elem) +'\n')
 		directionstxt.close()
         def parseObj(line):
-		    retVal = line.split(",")
-		    retVal[:2] = list(map(float,retVal[:2]))
-		    retVal[2] = retVal[2].rstrip()
-		    return tuple(retVal)
+        	retVal = line.split(",")
+			retVal[:2] = list(map(float,retVal[:2]))
+			retVal[2] = retVal[2].rstrip()
+			return tuple(retVal)
 		with open("/home/pi/donkey/donkeycar/parts/short_figure_8.txt") as directionslist:
 			tups = list(map(parseObj, directionslist))
 			for val in tups:
