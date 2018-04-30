@@ -164,8 +164,8 @@ class Navigator:
 					withinThreshold = 0
 					if (self.dir_q.empty()):
 						self.turnDirection = 'g'
-                    else:
-                    	self.curr_dir = "straight"
+					else:
+						self.curr_dir = "straight"
 						self.theoreticalLat, self.theoreticalLong, self.next_dir = dir_q.get()
 						self.turnDirection = "g"
 
