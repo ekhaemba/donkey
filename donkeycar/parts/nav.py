@@ -9,6 +9,7 @@ import threading
 import shutil
 import math
 from pynmea import nmea
+from queue import Queue
 #directions = googlemaps.directions
 #gmap = googlemaps.Client(key=API_KEY)
 
@@ -66,6 +67,7 @@ class Navigator:
 		self.list1TXT = []
 
 		self.list1 = []
+		self.dir_q = Queue()
 		#self.directions = steps
 		self.waypoints = ''
 		self.defaultWaypoints = 0
@@ -106,10 +108,13 @@ class Navigator:
 					self.list1TXT.append(((abs(float(line[:-1]))*1000000)%1000))
 				elif "left" in line:
 					self.list1TXT.append("left")
+					self.dir_q.put("left")
 				elif "right" in line:
 					self.list1TXT.append("right")
+					self.dir_q.put("right")
 				elif "straight" in line:
 					self.list1TXT.append("straight")
+					self.dir_q.put("straight")
 		#print(self.list1TXT)
 		#for (i=0,i<len(self.theoreticalLatLong),i+=2):
 		#	self.theoreticalLatLong[i] = math.sqrt(pow(self.theoreticalLatLong[i],2) + pow(self.theoreticalLatLong[i+1],2))			
@@ -142,11 +147,13 @@ class Navigator:
 				if((self.distanceToleranceTXT() <= GPS_TOLERANCE) and not withinThreshold):
 					withinThreshold = 1
 					print("current state: ", withinThreshold)
-					if (self.list1TXT[2] == "straight"):
+					if (self.dir_q.empty()):
+						self.turnDirection = 'g'
+					elif (self.dir_q.get() == "straight"):
 						self.turnDirection = "g"
-					elif (self.list1TXT[2] == "right"):
+					elif (self.dir_q.get() == "right"):
 						self.turnDirection = "y"
-					elif (self.list1TXT[2] == "left"):
+					elif (self.dir_q.get() == "left"):
 						self.turnDirection = "r"
 					#while(self.distanceToleranceTXT() <= 1.5 * GPS_TOLERANCE):
 					#	print("stuck")
