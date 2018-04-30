@@ -105,8 +105,8 @@ class Navigator:
 		for elem in self.list1:
 			directionstxt.write(str(elem) +'\n')
 		directionstxt.close()
-        def parseObj(line):
-        	retVal = line.split(",")
+		def parseObj(line):
+			retVal = line.split(",")
 			retVal[:2] = list(map(float,retVal[:2]))
 			retVal[2] = retVal[2].rstrip()
 			return tuple(retVal)
