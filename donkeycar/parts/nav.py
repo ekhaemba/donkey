@@ -114,7 +114,6 @@ class Navigator:
 			tups = list(map(parseObj, directionslist))
 			for val in tups:
 				self.dir_q.put(val)
-			self.theoreticalLat, self.theoreticalLong, turn = self.dir_q.get()
 
 		#print(self.list1TXT)
 		#for (i=0,i<len(self.theoreticalLatLong),i+=2):

@@ -35,7 +35,6 @@ class BehaviorPart(object):
         self.one_hot_state_array[self.active_state] = 0.0
         self.active_state = iState
         self.one_hot_state_array[self.active_state] = 1.0
-        print("In State:", self.states[self.active_state])
 
     def run(self):
         return self.active_state, self.states[self.active_state], self.one_hot_state_array
