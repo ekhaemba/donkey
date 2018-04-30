@@ -75,12 +75,17 @@ class Navigator:
 		#turnDirections!!!
 		#	"g" = straight,	  "r" = left,	"y" = right
 		self.turnDirection = "g"
-		self.theoreticalLatLong = []
+		self.theoreticalLat = None
+		self.theoreticalLong = None
+		self.firstTurn = True
 
 		self.ser = serial.Serial()
 		self.ser.baudrate = 4800
 		self.lat = 0
 		self.long = 0
+
+		self.curr_dir = 'straight'
+		self.next_dir  ='straight'
 		
 		try:
 			self.ser.port = '/dev/ttyUSB0'
@@ -100,21 +105,17 @@ class Navigator:
 		for elem in self.list1:
 			directionstxt.write(str(elem) +'\n')
 		directionstxt.close()
-
+        def parseObj(line):
+		    retVal = line.split(",")
+		    retVal[:2] = list(map(float,retVal[:2]))
+		    retVal[2] = retVal[2].rstrip()
+		    return tuple(retVal)
 		with open("/home/pi/donkey/donkeycar/parts/short_figure_8.txt") as directionslist:
-			for line in directionslist:
-				#print(line)
-				if (line[1].isdigit()):
-					self.list1TXT.append(((abs(float(line[:-1]))*1000000)%1000))
-				elif "left" in line:
-					self.list1TXT.append("left")
-					self.dir_q.put("left")
-				elif "right" in line:
-					self.list1TXT.append("right")
-					self.dir_q.put("right")
-				elif "straight" in line:
-					self.list1TXT.append("straight")
-					self.dir_q.put("straight")
+			tups = list(map(parseObj, directionslist))
+			for val in tups:
+				dir_q.put(val)
+			self.theoreticalLat, self.theoreticalLong, turn = dir_q.get()
+
 		#print(self.list1TXT)
 		#for (i=0,i<len(self.theoreticalLatLong),i+=2):
 		#	self.theoreticalLatLong[i] = math.sqrt(pow(self.theoreticalLatLong[i],2) + pow(self.theoreticalLatLong[i+1],2))			
@@ -126,6 +127,7 @@ class Navigator:
 
 	def update(self):
 		withinThreshold = 0
+		self.theoreticalLat, self.theoreticalLong, self.next_dir = dir_q.get()
 		# keep looping infinitely until the thread is stopped
 		while True:
 			try:
@@ -147,22 +149,29 @@ class Navigator:
 				if((self.distanceToleranceTXT() <= GPS_TOLERANCE) and not withinThreshold):
 					withinThreshold = 1
 					print("current state: ", withinThreshold)
-					if (self.dir_q.empty()):
-						self.turnDirection = 'g'
-					elif (self.dir_q.get() == "straight"):
+					self.curr_dir = self.next_dir
+
+					if (self.curr_dir == "straight"):
 						self.turnDirection = "g"
-					elif (self.dir_q.get() == "right"):
+					elif (self.curr_dir == "right"):
 						self.turnDirection = "y"
-					elif (self.dir_q.get() == "left"):
+					elif (self.curr_dir == "left"):
 						self.turnDirection = "r"
 					#while(self.distanceToleranceTXT() <= 1.5 * GPS_TOLERANCE):
 					#	print("stuck")
 					#	pass
 				if((self.distanceToleranceTXT() >= (1.5 * GPS_TOLERANCE)) and withinThreshold):
 					withinThreshold = 0
+					if (self.dir_q.empty()):
+						self.turnDirection = 'g'
+                    else:
+                    	self.curr_dir = "straight"
+						self.theoreticalLat, self.theoreticalLong, self.next_dir = dir_q.get()
+						self.turnDirection = "g"
+
 					print("current state: ",withinThreshold)
 #					self.updateDirections()
-					self.updateDirectionsTXT()
+					# self.updateDirectionsTXT()
 			except:
 #				self.distanceToleranceTXT()
 				pass
@@ -206,9 +215,7 @@ class Navigator:
 		#returns if the current lat long is within 15 ft tolerance of actual intersection
 		lat = ((self.lat*1000000)%1000)
 		long = ((abs(self.long)*1000000)%1000)
-		theoreticalLat = self.list1TXT[0]
-		theoreticalLong = self.list1TXT[1]
-		tolerance = math.sqrt(pow((theoreticalLat-lat), 2) + pow((theoreticalLong-long), 2))
+		tolerance = math.sqrt(pow((self.theoreticalLat-lat), 2) + pow((self.theoreticalLong-long), 2))
 		#actual = math.sqrt(pow(lat, 2) + pow(long, 2))
 		#tolerance = theoretical - actual
 		return tolerance
