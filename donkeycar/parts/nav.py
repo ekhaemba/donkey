@@ -113,8 +113,8 @@ class Navigator:
 		with open("/home/pi/donkey/donkeycar/parts/short_figure_8.txt") as directionslist:
 			tups = list(map(parseObj, directionslist))
 			for val in tups:
-				dir_q.put(val)
-			self.theoreticalLat, self.theoreticalLong, turn = dir_q.get()
+				self.dir_q.put(val)
+			self.theoreticalLat, self.theoreticalLong, turn = self.dir_q.get()
 
 		#print(self.list1TXT)
 		#for (i=0,i<len(self.theoreticalLatLong),i+=2):
@@ -127,7 +127,7 @@ class Navigator:
 
 	def update(self):
 		withinThreshold = 0
-		self.theoreticalLat, self.theoreticalLong, self.next_dir = dir_q.get()
+		self.theoreticalLat, self.theoreticalLong, self.next_dir = self.dir_q.get()
 		# keep looping infinitely until the thread is stopped
 		while True:
 			try:
@@ -166,7 +166,7 @@ class Navigator:
 						self.turnDirection = 'g'
 					else:
 						self.curr_dir = "straight"
-						self.theoreticalLat, self.theoreticalLong, self.next_dir = dir_q.get()
+						self.theoreticalLat, self.theoreticalLong, self.next_dir = self.dir_q.get()
 						self.turnDirection = "g"
 
 					print("current state: ",withinThreshold)
