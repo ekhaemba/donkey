@@ -83,6 +83,7 @@ class Navigator:
 		self.ser.baudrate = 4800
 		self.lat = 0
 		self.long = 0
+		self.last_distance = 0
 
 		self.curr_dir = 'straight'
 		self.next_dir  ='straight'
@@ -145,7 +146,8 @@ class Navigator:
 #				print(self.distanceToleranceTXT())
 				#yprint(self.myMethod())
 #				print(type(self.lat))
-				if((self.distanceToleranceTXT() <= GPS_TOLERANCE) and not withinThreshold):
+				this_distance = self.distanceToleranceTXT()
+				if((this_distance <= GPS_TOLERANCE) and not withinThreshold):
 					withinThreshold = 1
 					print("current state: ", withinThreshold)
 					print("Our position:({},{}), Turn Location ({},{})".format(self.lat, self.long, self,theoreticalLat, self.theoreticalLong))
@@ -160,7 +162,7 @@ class Navigator:
 					#while(self.distanceToleranceTXT() <= 1.5 * GPS_TOLERANCE):
 					#	print("stuck")
 					#	pass
-				if((self.distanceToleranceTXT() >= (1.5 * GPS_TOLERANCE)) and withinThreshold):
+				if((this_distance >= (1.5 * GPS_TOLERANCE)) and withinThreshold):
 					withinThreshold = 0
 					if (self.dir_q.empty()):
 						self.turnDirection = 'g'
@@ -173,6 +175,12 @@ class Navigator:
 					print("Our position:({},{}), Turn Location ({},{})".format(self.lat, self.long, self,theoreticalLat, self.theoreticalLong))
 #					self.updateDirections()
 					# self.updateDirectionsTXT()
+
+				if this_distance < self.last_distance:
+					print("warmer")
+				else:
+					print("colder")
+				self.last_distance = this_distance
 			except:
 #				self.distanceToleranceTXT()
 				pass
