@@ -127,11 +127,12 @@ class Navigator:
 
 	def update(self):
 		withinThreshold = 0
+		rate_hz = 2
 		self.theoreticalLat, self.theoreticalLong, self.next_dir = self.dir_q.get()
 		# keep looping infinitely until the thread is stopped
 		while True:
 			try:
-
+				start_time = time.time()
 				self.updateLatLong()
 #				print(self.distanceToleranceTXT())
 #				if(self.distanceTolerance() <= .000045):
@@ -177,10 +178,13 @@ class Navigator:
 					# self.updateDirectionsTXT()
 
 				if this_distance < self.last_distance:
-					print("warmer")
+					print("warmer: ", this_distance)
 				else:
 					print("colder")
 				self.last_distance = this_distance
+				sleep_time = 1.0 / rate_hz - (time.time() - start_time)
+                if sleep_time > 0.0:
+                    time.sleep(sleep_time)
 			except:
 #				self.distanceToleranceTXT()
 				pass
