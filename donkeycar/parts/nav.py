@@ -152,7 +152,7 @@ class Navigator:
 				this_distance = self.stackDistance()
 				if((this_distance <= GPS_TOLERANCE) and not withinThreshold):
 					withinThreshold = 1
-					print("current state: ", withinThreshold)
+					print("current state: ", withinThreshold, this_distance)
 					print("Our position:({},{}), Turn Location ({},{})".format(self.lat, self.long, self,theoreticalLat, self.theoreticalLong))
 					self.curr_dir = self.next_dir
 
@@ -176,7 +176,7 @@ class Navigator:
 						# self.theoreticalLong = ((self.theoreticalLong*1000000)%1000)
 						self.turnDirection = "g"
 
-					print("current state: ",withinThreshold)
+					print("current state: ",withinThreshold, this_distance)
 					print("Our position:({},{}), Turn Location ({},{})".format(self.lat, self.long, self,theoreticalLat, self.theoreticalLong))
 #					self.updateDirections()
 					# self.updateDirectionsTXT()
