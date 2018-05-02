@@ -179,8 +179,8 @@ class Navigator:
 
 				if this_distance < self.last_distance:
 					print("warmer: ", this_distance)
-				else:
-					print("colder")
+				# else:
+				# 	print("colder")
 				self.last_distance = this_distance
 				sleep_time = 1.0 / rate_hz - (time.time() - start_time)
 				if sleep_time > 0.0:
