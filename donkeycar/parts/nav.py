@@ -149,7 +149,7 @@ class Navigator:
 #				print(self.distanceToleranceTXT())
 				#yprint(self.myMethod())
 #				print(type(self.lat))
-				this_distance = self.distanceToleranceTXT()
+				this_distance = self.stackDistance()
 				if((this_distance <= GPS_TOLERANCE) and not withinThreshold):
 					withinThreshold = 1
 					print("current state: ", withinThreshold)
@@ -236,6 +236,21 @@ class Navigator:
 		#actual = math.sqrt(pow(lat, 2) + pow(long, 2))
 		#tolerance = theoretical - actual
 		return tolerance
+
+	def stackDistance(self):
+		R = 6373.0 #Radius of the earth
+		our_lat = math.radians(self.lat)
+		our_long = math.radians(self.long)
+		turn_lat = math.radians(self.theoreticalLat)
+		turn_long = math.radians(self.theoreticalLong)
+		dlon = our_long - turn_long
+		dlat = our_lat - turn_lat
+
+		a = sin(dlat / 2)**2 + cos(our_lat) * cos(our_long) * sin(dlon / 2)**2
+		c = 2 * atan2(sqrt(a), sqrt(1 - a))
+		return R*c
+
+
 
 	def directionsOntheGo(self):
 		now = dt.now()
