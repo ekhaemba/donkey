@@ -246,8 +246,8 @@ class Navigator:
 		dlon = our_long - turn_long
 		dlat = our_lat - turn_lat
 
-		a = sin(dlat / 2)**2 + cos(our_lat) * cos(our_long) * sin(dlon / 2)**2
-		c = 2 * atan2(sqrt(a), sqrt(1 - a))
+		a = math.sin(dlat / 2)**2 + math.cos(our_lat) * math.cos(our_long) * math.sin(dlon / 2)**2
+		c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 		return R*c
 
 
