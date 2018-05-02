@@ -220,6 +220,7 @@ class JoystickController(object):
         self.auto_record_on_throttle = auto_record_on_throttle
         self.dev_fn = dev_fn
         self.js = None
+        self.coordinates = [0,0]
 
         #We expect that the framework for parts will start a new
         #thread for our update fn. We used to do that and it caused
@@ -266,6 +267,8 @@ class JoystickController(object):
         * triangle = PS3 triangle => increase max throttle
         * cross = PS3 cross => decrease max throttle
         '''
+
+        prev_time = time.time()
 
         #wait for joystick to be online
         while self.running and not self.init_js():
@@ -327,12 +330,18 @@ class JoystickController(object):
                 '''
                 decrease max throttle setting
                 '''
-                self.max_throttle = round(max(0.0, self.max_throttle - 0.01), 2)
-                if self.constant_throttle:
-                    self.throttle = self.max_throttle
-                    self.on_throttle_changes()
+                # self.max_throttle = round(max(0.0, self.max_throttle - 0.01), 2)
+                # if self.constant_throttle:
+                #     self.throttle = self.max_throttle
+                #     self.on_throttle_changes()
 
             #     print('max_throttle:', self.max_throttle)
+
+                f = open('gps_pings.txt', 'a')
+                f.write(time.time() - prev_time)
+                prev_time = time.time()
+                f.write(self.coordinates)
+                f.close()
 
             if button == 'base' and button_state == 1:
                 '''
@@ -406,8 +415,9 @@ class JoystickController(object):
 
             time.sleep(self.poll_delay)
 
-    def run_threaded(self, img_arr=None):
+    def run_threaded(self, img_arr=None, coords=None):
         self.img_arr = img_arr
+        self.coordinates = coords
         return self.angle, self.throttle, self.mode, self.recording
 
     def run(self, img_arr=None):
