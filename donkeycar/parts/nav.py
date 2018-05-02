@@ -111,7 +111,7 @@ class Navigator:
 			retVal[:2] = list(map(float,retVal[:2]))
 			retVal[2] = retVal[2].rstrip()
 			return tuple(retVal)
-		with open("/home/pi/donkey/donkeycar/parts/short_figure_8.txt") as directionslist:
+		with open("/home/pi/donkey/donkeycar/parts/gps_pings.txt") as directionslist:
 			tups = list(map(parseObj, directionslist))
 			for val in tups:
 				self.dir_q.put(val)
