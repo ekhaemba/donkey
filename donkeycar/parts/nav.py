@@ -129,6 +129,8 @@ class Navigator:
 		withinThreshold = 0
 		rate_hz = 2
 		self.theoreticalLat, self.theoreticalLong, self.next_dir = self.dir_q.get()
+		self.theoreticalLat = ((self.theoreticalLat*1000000)%1000)
+		self.theoreticalLong = ((self.theoreticalLong*1000000)%1000)
 		# keep looping infinitely until the thread is stopped
 		while True:
 			try:
@@ -170,6 +172,8 @@ class Navigator:
 					else:
 						self.curr_dir = "straight"
 						self.theoreticalLat, self.theoreticalLong, self.next_dir = self.dir_q.get()
+						self.theoreticalLat = ((self.theoreticalLat*1000000)%1000)
+						self.theoreticalLong = ((self.theoreticalLong*1000000)%1000)
 						self.turnDirection = "g"
 
 					print("current state: ",withinThreshold)
