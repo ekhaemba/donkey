@@ -8,7 +8,8 @@ import sys
 import threading
 import shutil
 import math
-from pynmea import nmea
+#from pynmea import nmea
+import pynmea2
 from queue import Queue
 #directions = googlemaps.directions
 #gmap = googlemaps.Client(key=API_KEY)
@@ -145,9 +146,8 @@ class Navigator:
 #					elif (list1 == 'left'):
 #						self.turnDirection = "r"
 #					self.updateDirections()
-				
 #				print(self.distanceToleranceTXT())
-				#yprint(self.myMethod())
+#				print(self.myMethod())
 #				print(type(self.lat))
 				this_distance = self.stackDistance()
 				if((this_distance <= GPS_TOLERANCE) and not withinThreshold):
@@ -177,7 +177,7 @@ class Navigator:
 						self.turnDirection = "g"
 
 					print("current state: ",withinThreshold, this_distance)
-					print("Our position:({},{}), Turn Location ({},{})".format(self.lat, self.long, self,theoreticalLat, self.theoreticalLong))
+					print("Our position: ({},{}), Turn Location: ({},{})".format(self.lat, self.long, self,theoreticalLat, self.theoreticalLong))
 #					self.updateDirections()
 					# self.updateDirectionsTXT()
 
@@ -216,6 +216,21 @@ class Navigator:
 				
 		except:
 			pass
+
+	def updateLatLongAlt(self):
+		data = self.ser.readline()
+		try:
+			data = data.decode("utf-8")#converts data from bytes to string for parsing
+			lines = data.split(",")
+			if (lines[0] == "$GPGGA"):
+				msg = pynmea2.parse(data)
+				self.lat = msg.latitude
+				self.long = msg.longitude   
+				self.coord = (str(self.lat) + ',' + str(self.long))
+				print(self.coord)
+				
+		except e:
+			print(e)
 
 	def distanceTolerance(self):
 		#returns if the current lat long is within 15 ft tolerance of actual intersection
