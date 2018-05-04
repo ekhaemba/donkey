@@ -136,7 +136,7 @@ class Navigator:
 		while True:
 			try:
 				start_time = time.time()
-				self.updateLatLong()
+				self.updateLatLongAlt()
 #				print(self.distanceToleranceTXT())
 #				if(self.distanceTolerance() <= .000045):
 #					if (list1 == 'straight'):
