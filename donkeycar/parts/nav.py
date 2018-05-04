@@ -245,7 +245,7 @@ class Navigator:
 
 	def distanceToleranceTXT(self):
 		#returns if the current lat long is within 15 ft tolerance of actual intersection
-		lat = ((abs(self.lat*1000000))%1000)
+		lat = ((abs(self.lat)*1000000)%1000)
 		long = ((abs(self.long)*1000000)%1000)
 		tolerance = math.sqrt(pow((self.theoreticalLat-lat), 2) + pow((self.theoreticalLong-long), 2))
 		#actual = math.sqrt(pow(lat, 2) + pow(long, 2))
