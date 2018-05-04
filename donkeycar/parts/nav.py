@@ -24,7 +24,7 @@ from queue import Queue
 list1 = []
 waypoints = ''
 defaultWaypoints = 0
-GPS_TOLERANCE = 0.01
+GPS_TOLERANCE = 0.002
 
 def askUserForWaypoints(waypoints_list, moreThanOneWaypoint):
 	###right now, the function just takes the user to the waypoint
